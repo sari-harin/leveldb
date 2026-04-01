@@ -629,6 +629,11 @@ void DBImpl::TEST_CompactRange(int level, const Slice* begin,
       background_work_finished_signal_.Wait();
     }
   }
+  // Finish current background compaction in the case where
+  // `background_work_finished_signal_` was signalled due to an error.
+  while (background_compaction_scheduled_) {
+    background_work_finished_signal_.Wait();
+  }
   if (manual_compaction_ == &manual) {
     // Cancel my manual compaction since we aborted early for some reason.
     manual_compaction_ = nullptr;
@@ -641,7 +646,8 @@ Status DBImpl::TEST_CompactMemTable() {
   if (s.ok()) {
     // Wait until the compaction completes
     MutexLock l(&mutex_);
-    while (imm_ != nullptr && bg_error_.ok()) {
+    while (imm_ != nullptr && bg_error_.ok() &&
+           !shutting_down_.load(std::memory_order_acquire)) {
       background_work_finished_signal_.Wait();
     }
     if (imm_ != nullptr) {

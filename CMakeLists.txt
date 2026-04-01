@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file. See the AUTHORS file for names of contributors.
 
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.22)
 # Keep the version below in sync with the one in db.h
 project(leveldb VERSION 1.23.0 LANGUAGES C CXX)
 
@@ -16,8 +16,8 @@ endif(NOT CMAKE_C_STANDARD)
 
 # C++ standard can be overridden when this is used as a sub-project.
 if(NOT CMAKE_CXX_STANDARD)
-  # This project requires C++11.
-  set(CMAKE_CXX_STANDARD 11)
+  # This project requires C++17.
+  set(CMAKE_CXX_STANDARD 17)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif(NOT CMAKE_CXX_STANDARD)
@@ -40,6 +40,7 @@ check_include_file("unistd.h" HAVE_UNISTD_H)
 include(CheckLibraryExists)
 check_library_exists(crc32c crc32c_value "" HAVE_CRC32C)
 check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)
+check_library_exists(zstd zstd_compress "" HAVE_ZSTD)
 check_library_exists(tcmalloc malloc "" HAVE_TCMALLOC)
 
 include(CheckCXXSymbolExists)
@@ -273,6 +274,9 @@ endif(HAVE_CRC32C)
 if(HAVE_SNAPPY)
   target_link_libraries(leveldb snappy)
 endif(HAVE_SNAPPY)
+if(HAVE_ZSTD)
+  target_link_libraries(leveldb zstd)
+endif(HAVE_ZSTD)
 if(HAVE_TCMALLOC)
   target_link_libraries(leveldb tcmalloc)
 endif(HAVE_TCMALLOC)
