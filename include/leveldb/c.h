@@ -35,6 +35,7 @@
   (4) Bools have the type uint8_t (0 == false; rest == true)
 
   (5) All of the pointer arguments must be non-NULL.
+---
 */
 
 #ifndef STORAGE_LEVELDB_INCLUDE_C_H_
